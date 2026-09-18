@@ -2,10 +2,13 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import sequelize from "./config/database.js";
+import categoryAwardsRoutes from "./routes/categoryAwards.routes.js";
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api", categoryAwardsRoutes);
 
 // Rotas da aplicação devem ser registradas aqui, antes dos handlers de 404/erro abaixo.
 
