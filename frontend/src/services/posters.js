@@ -9,14 +9,23 @@
  * ou seja, esta chave fica visível para quem abrir o site. Para o TMDB, cuja
  * chave é apenas de leitura, isso é aceitável em um projeto de estudo. Em
  * produção o ideal seria o backend fazer essa chamada e expor o resultado.
+ *
+ * Antes de ir ao TMDB, consulta src/data/posters.json — a lista pronta gerada
+ * por scripts/fetch-posters.js com todos os filmes da planilha do banco.
  */
+import bundledPosters from "../data/posters.json";
+
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const TMDB_FIND_URL = "https://api.themoviedb.org/3/find";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 const CACHE_PREFIX = "poster:";
 
-/** Indica se a chave foi configurada, para a UI avisar em vez de falhar calada. */
-export const hasPosterProvider = Boolean(TMDB_API_KEY);
+/**
+ * Indica se há de onde tirar pôsteres (lista pronta ou chave do TMDB), para a
+ * UI avisar em vez de falhar calada.
+ */
+export const hasPosterProvider =
+  Object.keys(bundledPosters).length > 0 || Boolean(TMDB_API_KEY);
 
 /** Evita repetir a requisição do mesmo filme dentro da sessão. */
 const memoryCache = new Map();
@@ -55,7 +64,12 @@ function writeCache(imdbId, posterUrl) {
  *   ou se a chave do TMDB não estiver configurada.
  */
 export async function getPosterUrl(imdbId) {
-  if (!imdbId || !TMDB_API_KEY) return null;
+  if (!imdbId) return null;
+
+  // Lista pronta: `null` ali significa que o TMDB já disse não ter pôster.
+  if (imdbId in bundledPosters) return bundledPosters[imdbId];
+
+  if (!TMDB_API_KEY) return null;
 
   const cached = readCache(imdbId);
   if (cached !== undefined) return cached;

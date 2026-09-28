@@ -3,8 +3,14 @@
  *
  * Em desenvolvimento o Vite faz proxy de /api para http://localhost:3000
  * (ver vite.config.js), então as chamadas usam caminho relativo.
+ *
+ * VITE_DATA_SOURCE no frontend/.env escolhe de onde vêm os dados:
+ *   "api" (padrão) → backend em /api
+ *   "planilha"     → src/data/category-awards.json, gerado da planilha por
+ *                    scripts/build-awards-from-csv.js no mesmo formato da API
  */
 const BASE_URL = "/api";
+const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE === "planilha" ? "planilha" : "api";
 
 async function request(path) {
   let response;
@@ -52,6 +58,12 @@ async function request(path) {
  * }>>}
  */
 export async function getCategoryAwards() {
+  if (DATA_SOURCE === "planilha") {
+    // Import dinâmico: o JSON (~1,3 MB) só é baixado quando este modo está ligado.
+    const { default: data } = await import("../data/category-awards.json");
+    return data;
+  }
+
   const { data } = await request("/category-awards");
   return data ?? [];
 }
