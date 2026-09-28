@@ -10,7 +10,7 @@ export const Person = sequelize.define(
             autoIncrement: true
         },
         imdb_id: {
-            type: DataTypes.STRING(12),
+            type: DataTypes.STRING(20),
             allowNull: true,
             unique: true
         },

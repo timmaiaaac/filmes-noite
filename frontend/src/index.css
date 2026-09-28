@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Regras globais que no protótipo ficavam na tag <style> do <head>. */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overscroll-behavior: none;
+  }
+
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@layer components {
+  /*
+   * O protótipo usava `bg-radial-[at_top_right] from-secondary-container/15 ...`,
+   * sintaxe do Tailwind v4 que o CDN v3 ignorava silenciosamente — ou seja, esse
+   * brilho nunca chegou a renderizar. Aqui ele é recriado com um radial-gradient
+   * de verdade, na mesma cor (secondary-container #af8d11) e opacidade (15%).
+   */
+  .hero-radial-glow {
+    background-image: radial-gradient(
+      circle at top right,
+      rgb(175 141 17 / 0.15),
+      transparent 60%
+    );
+  }
+}

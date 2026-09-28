@@ -18,7 +18,7 @@ export const Nomination = sequelize.define(
             allowNull: false
         },
         category_label: {
-            type: DataTypes.STRING(120),
+            type: DataTypes.STRING(150),
             allowNull: false
         },
         winner: {
