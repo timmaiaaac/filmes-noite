@@ -55,9 +55,48 @@ npm run dev             # ou: npm start
 
 Ao subir, a aplicação conecta no PostgreSQL e sincroniza as tabelas automaticamente (`sequelize.sync`).
 
+## API em produção
+
+A API está publicada no Render:
+
+🔗 **https://filmes-noite.onrender.com**
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | [`/api/category-awards`](https://filmes-noite.onrender.com/api/category-awards) | Premiações vencedoras agrupadas por categoria |
+
+Exemplo de resposta:
+
+```json
+{
+  "success": true,
+  "total": 66,
+  "data": [
+    {
+      "categoryId": 1,
+      "categoryName": "ACTOR IN A LEADING ROLE",
+      "categoryClass": "Acting",
+      "winsCount": 99,
+      "winners": [ ... ]
+    }
+  ]
+}
+```
+
+> ⏳ O serviço usa o plano gratuito: após um período sem uso ele "dorme", e a primeira requisição pode levar de 30 a 60 segundos.
+
+### Deploy (Render)
+
+| Configuração | Valor |
+|---|---|
+| Root Directory | `backend` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+| Variável de ambiente | `DATABASE_URL` |
+
 ## Documentação completa
 
 - 📗 [Banco de dados e ORM](docs/database.md)
-- 📙 Backend (rotas, controllers, services) — em breve
+- 📙 Backend — API em produção (ver [API em produção](#api-em-produção))
 - 🧪 Testes automatizados — em breve
 - 📘 Frontend — em breve
