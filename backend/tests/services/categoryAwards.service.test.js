@@ -54,7 +54,7 @@ test("getWinsByCategory retorna categorias com vencedores mapeados corretamente"
         async () => [buildCategoryRow({ nominations: [nomination] })]
     );
 
-    const result = await getWinsByCategory();
+    const result = await getWinsByCategory(96);
 
     assert.equal(result.length, 1);
     const [category] = result;
@@ -90,7 +90,7 @@ test("getWinsByCategory retorna winsCount 0 e winners vazio quando a categoria n
         async () => [buildCategoryRow({ nominations: [] })]
     );
 
-    const result = await getWinsByCategory();
+    const result = await getWinsByCategory(96);
 
     assert.equal(result.length, 1);
     assert.equal(result[0].winsCount, 0);
@@ -103,7 +103,7 @@ test("getWinsByCategory lança Error com mensagem clara quando a consulta falha"
     });
 
     await assert.rejects(
-        () => getWinsByCategory(),
+        () => getWinsByCategory(96),
         (err) => {
             assert.ok(err instanceof Error);
             assert.match(err.message, /Falha ao obter premiações ganhas por categoria/);
@@ -112,3 +112,42 @@ test("getWinsByCategory lança Error com mensagem clara quando a consulta falha"
         }
     );
 });
+
+test("getWinsByCategory filtra pela cerimônia e exige vencedores (required: true)", async (t) => {
+    let receivedOptions;
+    const { getWinsByCategory } = await loadServiceWithMockedFindAll(t, async (options) => {
+        receivedOptions = options;
+        return [];
+    });
+
+    await getWinsByCategory(96);
+
+    const nominationInclude = receivedOptions.include[0];
+    assert.deepEqual(nominationInclude.where, { winner: true, ceremony_id: 96 });
+    assert.equal(nominationInclude.required, true);
+});
+
+test("getWinsByCategory aceita ceremonyId como string numérica", async (t) => {
+    let receivedOptions;
+    const { getWinsByCategory } = await loadServiceWithMockedFindAll(t, async (options) => {
+        receivedOptions = options;
+        return [];
+    });
+
+    await getWinsByCategory("96");
+
+    assert.equal(receivedOptions.include[0].where.ceremony_id, 96);
+});
+
+for (const invalid of [undefined, null, "", "abc", 0, -1, 2.5]) {
+    test(`getWinsByCategory rejeita ceremonyId inválido (${JSON.stringify(invalid)}) sem consultar o banco`, async (t) => {
+        let called = false;
+        const { getWinsByCategory } = await loadServiceWithMockedFindAll(t, async () => {
+            called = true;
+            return [];
+        });
+
+        await assert.rejects(() => getWinsByCategory(invalid), /ceremonyId inválido/);
+        assert.equal(called, false);
+    });
+}
